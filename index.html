@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bộ câu hỏi trắc nghiệm — 2025</title>
+
+  <!-- ========= MATHJAX ========= -->
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]},
+      svg: {fontCache: 'global'}
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <!-- ========= INLINE CSS (Dark Neo Black) ========= -->
+  <style>
+    :root{
+      --bg:#0b0f17;           /* nền tối sâu */
+      --bg2:#070a10;          /* tối hơn cho gradient */
+      --panel:#111827;        /* card */
+      --panel-stroke:#1f2937; /* viền card */
+      --ink:#e5e7eb;          /* chữ chính sáng */
+      --muted:#94a3b8;        /* chữ phụ */
+      --brand:#22d3ee;        /* cyan điểm nhấn */
+      --brand-soft:#a78bfa;   /* tím điểm nhấn phụ */
+      --pill:#0f172a;         /* đáp án mặc định */
+      --shadow:0 14px 40px rgba(0,0,0,.55);
+      --radius:18px;
+
+      --right-grad:linear-gradient(135deg,#10b981,#059669); /* đúng */
+      --wrong-grad:linear-gradient(135deg,#ef4444,#b91c1c); /* sai */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1100px 750px at 85% 10%, rgba(34,211,238,.12), transparent 60%),
+        radial-gradient(900px 700px at 10% 90%, rgba(167,139,250,.10), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      line-height:1.55;
+    }
+
+    /* vùng chứa */
+    .page{max-width:min(980px,92vw);margin:26px auto 84px;padding:0 16px}
+
+    /* top brand */
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.02em;color:var(--ink)}
+    .brand-badge{
+      width:36px;height:36px;border-radius:12px;
+      background:linear-gradient(135deg,var(--brand),var(--brand-soft));
+      display:grid;place-items:center;color:#0b0f17;font-weight:900;
+      box-shadow:0 0 22px rgba(34,211,238,.25), 0 0 28px rgba(167,139,250,.18);
+      border:1px solid #1f2937;
+    }
+    .brand-text{font-size:18px}
+    .brand-text b{color:var(--brand)}
+
+    /* card */
+    .card{
+      position:relative;
+      background:var(--panel);
+      border:1px solid var(--panel-stroke);
+      border-radius:var(--radius);
+      padding:22px 22px 18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      margin-top:18px;
+    }
+    .qmark{
+      position:absolute; right:12px; top:-6px;
+      width:92px; aspect-ratio:1/1;
+      background:linear-gradient(135deg,var(--brand),var(--brand-soft));
+      border-radius:20px; display:grid; place-items:center;
+      color:#0b0f17; font:900 56px/1 ui-sans-serif;
+      box-shadow:inset 0 6px 16px rgba(0,0,0,.28), 0 0 24px rgba(34,211,238,.18);
+      user-select:none;
+    }
+    .qno{font-weight:900;color:#c7d2fe;margin:0 0 6px}
+
+    /* hộp nội dung câu hỏi */
+    .question-box{
+      background:#0f172a; color:var(--ink);
+      border-radius:14px; padding:12px 14px; margin:8px 0 12px;
+      border:1px solid #1f2937;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .question-box .question{margin:0;font-weight:700;font-size:18px}
+
+    .question{margin:6px 0 12px;font-size:22px;font-weight:800}
+
+    /* meta + nút hiện/ẩn lời giải */
+    .meta, .solution-toggle{
+      font-size:13px;color:#bfdbfe;background:rgba(59,130,246,.15);
+      border:1px solid rgba(59,130,246,.35);
+      border-radius:10px;padding:6px 10px;display:inline-block;margin:6px 0 12px;
+      font-weight:600;
+    }
+    .meta b{color:#e0f2fe}
+    .solution-toggle{cursor:pointer}
+    .solution-toggle[hidden]{display:none!important;}
+    .solution-box{margin-top:8px}
+
+    /* nhóm đáp án */
+    .choices{display:grid;gap:14px;margin-top:10px}
+    .choice{
+      width:100%;
+      border:1px solid #1f2937;
+      cursor:pointer; text-align:left;
+      background:linear-gradient(180deg,#111827,#0b1220);
+      color:#e5e7eb;
+      border-radius:999px;
+      padding:14px 16px 14px 64px;
+      font-weight:700; font-size:16px;
+      position:relative;
+      box-shadow:0 2px 0 rgba(0,0,0,.35);
+      transition:transform .05s ease, box-shadow .2s ease, background .2s ease, filter .2s ease;
+    }
+    .choice:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.45)}
+    .choice:active{transform:translateY(1px)}
+    .choice .bullet{
+      position:absolute; left:12px; top:50%; translate:0 -50%;
+      width:38px; height:38px; border-radius:50%;
+      display:grid; place-items:center;
+      background:linear-gradient(135deg,var(--brand),var(--brand-soft));
+      color:#0b0f17; font-weight:900; text-transform:lowercase;
+      border:1px solid #1f2937;
+      box-shadow:0 2px 0 rgba(0,0,0,.35) inset, 0 0 14px rgba(34,211,238,.18);
+    }
+
+    /* Đúng/Sai đổi NỀN */
+    .choice.correct{
+      background:var(--right-grad);
+      color:#062e12;
+      border-color:rgba(16,185,129,.6);
+      box-shadow:0 0 18px rgba(16,185,129,.45);
+      filter:none;
+    }
+    .choice.wrong{
+      background:var(--wrong-grad);
+      color:#fff;
+      border-color:rgba(239,68,68,.6);
+      box-shadow:0 0 18px rgba(239,68,68,.45);
+      filter:none;
+    }
+
+    .choice.disabled{pointer-events:none;opacity:.98}
+
+    .status{margin-top:12px;min-height:22px;font-weight:700;color:#e5e7eb}
+    .status small{font-weight:500;color:#cbd5e1}
+
+    /* nút lên đầu trang */
+    .to-top{
+      position:fixed; right:14px; bottom:14px; z-index:20;
+      width:42px; height:42px; border-radius:12px;
+      display:grid; place-items:center;
+      background:linear-gradient(135deg,var(--brand),var(--brand-soft));
+      color:#0b0f17; text-decoration:none;
+      font-weight:900; box-shadow:0 8px 22px rgba(0,0,0,.6);
+      border:1px solid #1f2937;
+    }
+
+    /* responsive */
+    @media (max-width:600px){
+      .question-box .question{font-size:16px}
+      .page{margin:16px auto 56px;padding:0 12px}
+      .brand-text{font-size:16px}
+      .card{padding:18px 16px 14px;border-radius:16px}
+      .question{font-size:18px;margin-bottom:8px}
+      .choice{padding:12px 14px 12px 56px;font-size:15px}
+      .choice .bullet{width:34px;height:34px;left:10px}
+      .qmark{width:78px;right:6px;top:-8px}
+    }
+    @media (min-width:601px) and (max-width:900px){
+      .page{max-width:90%; padding:0 20px}
+      .brand-text{font-size:1.1rem}
+      .card{padding:20px 18px; border-radius:1rem}
+      .question{font-size:1.25rem; margin-bottom:0.6em}
+      .choice{padding:0.8em 1em 0.8em 3.5em; font-size:1rem}
+      .choice .bullet{width:2.2em; height:2.2em}
+      .qmark{width:80px; top:-10px}
+    }
+    @media (min-width:901px) and (max-width:1199px){
+      .page{max-width:78%; padding:0 22px}
+      .brand-text{font-size:1.15rem}
+      .card{padding:20px 20px; border-radius:1rem}
+      .question{font-size:1.3rem; margin-bottom:0.7em}
+      .choice{padding:0.9em 1.1em 0.9em 3.8em; font-size:1.05rem}
+      .choice .bullet{width:2.4em; height:2.4em}
+      .qmark{width:86px; top:-10px}
+    }
+    @media (min-width:1200px){
+      .page{max-width:70%; padding:0 24px}
+      .question{font-size:1.4rem}
+      .choice{font-size:1.1rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar" aria-label="Thương hiệu">
+      <div class="brand">
+        <span class="brand-badge">BẠN</span>
+        <span class="brand-text"><b>LÀM</b> ĐÚNG BAO NHIÊU CÂU</span>
+      </div>
+      <span style="color:var(--muted);font-size:13px">Nguyễn Đức Ánh</span>
+    </div>
+
+    <div class="brand"><span class="brand-badge">?</span> <span class="brand-text">CÂU HỎI TRẮC NGHIỆM ÔN TẬP HÀM HAI BIẾN</span></div>
+
+    <!-- ========= CÂU 1 ========= -->
+    <section class="card" role="group" aria-labelledby="q1">
+      <div class="qmark">?</div>
+      <p class="qno" id="q1">Câu 1:</p>
+      <div class="question-box"><div class="question">Trong thị trường cạnh tranh hoàn hảo, một xí nghiệp sản xuất hai loại sản phẩm với giá bán trên thị trường lần lượt là \(P_1=24\), \(P_2=26\) đơn vị tiền tệ trên một đơn vị sản phẩm. Biết trong quá trình sản xuất, xí nghiệp bỏ ra chi phí tuân theo hàm \(TC=Q_1^2+Q_1Q_2+Q_2^2\). Doanh thu của xí nghiệp được tính theo công thức nào?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices1">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(TR=24Q_1+26Q_2\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(TR=-Q_1^2-Q_2^2-Q_1Q_2+24Q_1+26Q_2\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(TR=-Q_1^2+Q_2^2+Q_1Q_2+24Q_1+26Q_2\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(TR=14Q_1+16Q_2\)</button>
+      </div>
+      <div class="status" id="status1"></div>
+
+      <div class="solution-box" id="sol1" hidden>
+        <div class="question-box"><div class="question">Doanh thu bằng tổng doanh thu từ hai loại sản phẩm: 
+
+\(TR=P_1Q_1+P_2Q_2\). 
+
+Thay \(P_1=24\), \(P_2=26\), ta được 
+
+\(TR=24Q_1+26Q_2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 2 ========= -->
+    <section class="card" role="group" aria-labelledby="q2">
+      <div class="qmark">?</div>
+      <p class="qno" id="q2">Câu 2:</p>
+      <div class="question-box"><div class="question">Một xí nghiệp sản xuất độc quyền một loại sản phẩm và có hai thị trường tiêu thụ tách biệt. Biết hàm cầu trên hai thị trường và hàm tổng chi phí là: \(Q_{D_1}=480-P_1\), \(Q_{D_2}=400-P_2\), \(TC=120+100Q+Q^2\). Lợi nhuận của xí nghiệp có thể tính theo công thức nào? Biết \(Q_1,Q_2\) là lượng sản phẩm bán trên các thị trường.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices2">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(\Pi=-2Q_1^2-2Q_2^2+2Q_1Q_2+390Q_1+930Q_2-120\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(\Pi=-2Q_1^2-2Q_2^2-2Q_1Q_2+390Q_1+1110Q_2+20\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(\Pi=-2Q_1^2-4Q_2^2-2Q_1Q_2+390Q_1+1110Q_2-20\)</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(\Pi=-2Q_1^2-2Q_2^2-2Q_1Q_2+380Q_1+300Q_2-120\)</button>
+      </div>
+      <div class="status" id="status2"></div>
+
+      <div class="solution-box" id="sol2" hidden>
+        <div class="question-box"><div class="question">Từ \(Q_1=480-P_1\), \(Q_2=400-P_2\) 
+
+suy ra \(P_1=480-Q_1\), \(P_2=400-Q_2\). 
+
+Doanh thu là \(TR=(480-Q_1)Q_1+(400-Q_2)Q_2\).
+
+Vì \(Q=Q_1+Q_2\), nên \(TC=120+100(Q_1+Q_2)+(Q_1+Q_2)^2\).
+
+Do đó:
+
+\(\Pi=TR-TC=-2Q_1^2-2Q_2^2-2Q_1Q_2+380Q_1+300Q_2-120\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 3 ========= -->
+    <section class="card" role="group" aria-labelledby="q3">
+      <div class="qmark">?</div>
+      <p class="qno" id="q3">Câu 3:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x^2+y^3\). Khi đó \(z&#x27;&#x27;_{xy}\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices3">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(z&#x27;&#x27;_{xy}=0\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;&#x27;_{xy}=2x+3y\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;&#x27;_{xy}=6\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;&#x27;_{xy}=x+6y\)</button>
+      </div>
+      <div class="status" id="status3"></div>
+
+      <div class="solution-box" id="sol3" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=\dfrac{\partial}{\partial x}(x^2+y^3)=2x\).
+
+Lấyđạo hàm riêng của \(z_x\) theo \(y\): \(z&#x27;&#x27;_{xy}=\dfrac{\partial}{\partial y}(2x)=0\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 4 ========= -->
+    <section class="card" role="group" aria-labelledby="q4">
+      <div class="qmark">?</div>
+      <p class="qno" id="q4">Câu 4:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=\sin x-\cos y\). Khi đó \(z&#x27;_x\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices4">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_x=-\cos x\)</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(z&#x27;_x=\cos x\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_x=\cos y\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;_x=-\cos y\)</button>
+      </div>
+      <div class="status" id="status4"></div>
+
+      <div class="solution-box" id="sol4" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(x\) được tính bằng cách xem \(y\) là hằng số.
+
+Do đó:
+\(z&#x27;_x=\dfrac{\partial}{\partial x}(\sin x-\cos y)=\cos x\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 5 ========= -->
+    <section class="card" role="group" aria-labelledby="q5">
+      <div class="qmark">?</div>
+      <p class="qno" id="q5">Câu 5:</p>
+      <div class="question-box"><div class="question">Một xí nghiệp sản xuất độc quyền một loại sản phẩm và có hai thị trường tiêu thụ tách biệt. Biết hàm cầu trên hai thị trường và hàm tổng chi phí là: \(Q_{D_1}=480-P_1\), \(Q_{D_2}=400-P_2\), \(TC=120+100Q+Q^2\). Doanh thu của xí nghiệp có thể tính theo công thức nào? Biết \(Q_1,Q_2\) là lượng sản phẩm bán trên các thị trường.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices5">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(TR=-Q_1^2-Q_2^2+380Q_1+300Q_2\)</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(TR=-Q_1^2-Q_2^2+480Q_1+400Q_2\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(TR=-2Q_1^2-2Q_2^2-2Q_1Q_2+380Q_1+300Q_2-120\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(TR=-2Q_1^2-2Q_2^2-2Q_1Q_2+370Q_1+280Q_2-120\)</button>
+      </div>
+      <div class="status" id="status5"></div>
+
+      <div class="solution-box" id="sol5" hidden>
+        <div class="question-box"><div class="question">Từ \(Q_1=480-P_1\), \(Q_2=400-P_2\) 
+
+suy ra \(P_1=480-Q_1\), \(P_2=400-Q_2\). 
+
+Doanh thu là 
+
+\(TR=P_1Q_1+P_2Q_2=(480-Q_1)Q_1+(400-Q_2)Q_2\)
+
+\(=-Q_1^2-Q_2^2+480Q_1+400Q_2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 6 ========= -->
+    <section class="card" role="group" aria-labelledby="q6">
+      <div class="qmark">?</div>
+      <p class="qno" id="q6">Câu 6:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x^2+y^3\). Khi đó \(z&#x27;&#x27;_{xx}\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices6">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;&#x27;_{xx}=2x+3y\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;&#x27;_{xx}=2+6y\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;&#x27;_{xx}=2x+6y\)</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(z&#x27;&#x27;_{xx}=2\)</button>
+      </div>
+      <div class="status" id="status6"></div>
+
+      <div class="solution-box" id="sol6" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=\dfrac{\partial}{\partial x}(x^2+y^3)=2x\).
+
+Lấyđạo hàm riêng theo \(x\) lần nữa: \(z&#x27;&#x27;_{xx}=\dfrac{\partial}{\partial x}(2x)=2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 7 ========= -->
+    <section class="card" role="group" aria-labelledby="q7">
+      <div class="qmark">?</div>
+      <p class="qno" id="q7">Câu 7:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=2x^2y^3+y^4-3xy+1\). Chọn đáp án đúng.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices7">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;&#x27;_{xx}=-y^3\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;&#x27;_{xx}=y^3\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(z&#x27;&#x27;_{xx}=4y^3\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;&#x27;_{xx}=-4y^3\)</button>
+      </div>
+      <div class="status" id="status7"></div>
+
+      <div class="solution-box" id="sol7" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=4xy^3-3y\).
+
+Lấytiếp đạo hàm riêng theo \(x\): \(z_{xx}=\dfrac{\partial}{\partial x}(4xy^3-3y)=4y^3\). Vậy \(z&#x27;&#x27;_{xx}=4y^3\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 8 ========= -->
+    <section class="card" role="group" aria-labelledby="q8">
+      <div class="qmark">?</div>
+      <p class="qno" id="q8">Câu 8:</p>
+      <div class="question-box"><div class="question">Tìm vi phân cấp một của hàm số \(z=2x^2+2y^3+2xy+1\).</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices8">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(dz=(4x+2y)\,dx-(6y^2+2x)\,dy\)</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(dz=(4x+2y)\,dx+(6y^2+2x)\,dy\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(dz=(4x+2y)\,dx+(6y^2+2)\,dy\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(dz=(4x+y)\,dx+(6y^2+2x)\,dy\)</button>
+      </div>
+      <div class="status" id="status8"></div>
+
+      <div class="solution-box" id="sol8" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=4x+2y\), \(z_y=6y^2+2x\).
+
+Do đó:
+vi phân cấp một là \(dz=z_x\,dx+z_y\,dy=(4x+2y)\,dx+(6y^2+2x)\,dy\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 9 ========= -->
+    <section class="card" role="group" aria-labelledby="q9">
+      <div class="qmark">?</div>
+      <p class="qno" id="q9">Câu 9:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x\cdot y\). Khi đó \(z&#x27;_y\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices9">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(z&#x27;_y=x\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_y=-x\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_y=y\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;_y=-y\)</button>
+      </div>
+      <div class="status" id="status9"></div>
+
+      <div class="solution-box" id="sol9" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(y\) được tính bằng cách xem \(x\) là hằng số.
+
+Do đó:
+\(z&#x27;_y=\dfrac{\partial}{\partial y}(xy)=x\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 10 ========= -->
+    <section class="card" role="group" aria-labelledby="q10">
+      <div class="qmark">?</div>
+      <p class="qno" id="q10">Câu 10:</p>
+      <div class="question-box"><div class="question">Trong thị trường cạnh tranh hoàn hảo, một xí nghiệp sản xuất hai loại sản phẩm với giá bán trên thị trường lần lượt là \(P_1=14\), \(P_2=16\) đơn vị tiền tệ trên một đơn vị sản phẩm. Biết trong quá trình sản xuất xí nghiệp bỏ ra chi phí theo hàm \(TC=Q_1^2+Q_1Q_2+Q_2^2\), và mức thuế phải đóng cho các sản phẩm lần lượt là \(2\), \(3\) đơn vị tiền tệ trên một đơn vị sản phẩm. Lợi nhuận của xí nghiệp được tính theo công thức nào?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices10">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(\Pi=-Q_1^2-Q_2^2-Q_1Q_2+12Q_1+13Q_2\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(\Pi=-Q_1^2-Q_2^2+Q_1Q_2+12Q_1+13Q_2\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(\Pi=Q_1^2+Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(\Pi=-Q_1^2-Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+      </div>
+      <div class="status" id="status10"></div>
+
+      <div class="solution-box" id="sol10" hidden>
+        <div class="question-box"><div class="question">Doanh thu \(TR=14Q_1+16Q_2\), tổng thuế \(T=2Q_1+3Q_2\).
+
+Do đó:
+
+\(\Pi=TR-TC-T=(14Q_1+16Q_2)-(Q_1^2+Q_1Q_2+Q_2^2)-(2Q_1+3Q_2)\)
+
+\(=-Q_1^2-Q_2^2-Q_1Q_2+12Q_1+13Q_2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 11 ========= -->
+    <section class="card" role="group" aria-labelledby="q11">
+      <div class="qmark">?</div>
+      <p class="qno" id="q11">Câu 11:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=\sin x-\cos y\). Khi đó \(z&#x27;_y\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices11">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_y=-\sin y\)</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(z&#x27;_y=\sin y\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_y=\sin x\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;_y=-\sin x\)</button>
+      </div>
+      <div class="status" id="status11"></div>
+
+      <div class="solution-box" id="sol11" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(y\) được tính bằng cách xem \(x\) là hằng số.
+
+Do đó:
+\(z&#x27;_y=\dfrac{\partial}{\partial y}(\sin x-\cos y)=\sin y\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 12 ========= -->
+    <section class="card" role="group" aria-labelledby="q12">
+      <div class="qmark">?</div>
+      <p class="qno" id="q12">Câu 12:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=2x^2y^3+y^4-3xy+1\). Chọn đáp án đúng.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices12">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_y=6x^2+4y^3-3x\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_y=4xy^3-3y\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_y=6y^2+4y^3-3x\)</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(z&#x27;_y=6x^2y^2+4y^3-3x\)</button>
+      </div>
+      <div class="status" id="status12"></div>
+
+      <div class="solution-box" id="sol12" hidden>
+        <div class="question-box"><div class="question">Ta có \(z=2x^2y^3+y^4-3xy+1\).
+
+Lấyđạo hàm riêng theo \(y\): \(z_y=\dfrac{\partial}{\partial y}(2x^2y^3)+\dfrac{\partial}{\partial y}(y^4)-\dfrac{\partial}{\partial y}(3xy)=6x^2y^2+4y^3-3x\). Vậy \(z&#x27;_y=6x^2y^2+4y^3-3x\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 13 ========= -->
+    <section class="card" role="group" aria-labelledby="q13">
+      <div class="qmark">?</div>
+      <p class="qno" id="q13">Câu 13:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=2x^2y^3+y^4-3xy+1\). Chọn đáp án đúng.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices13">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;&#x27;_{xy}=-12xy^2+3\)</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(z&#x27;&#x27;_{xy}=12xy^2-3\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;&#x27;_{xy}=12y^2-3\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;&#x27;_{xy}=12xy^2\)</button>
+      </div>
+      <div class="status" id="status13"></div>
+
+      <div class="solution-box" id="sol13" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=4xy^3-3y\).
+
+Lấytiếp đạo hàm riêng theo \(y\): \(z_{xy}=\dfrac{\partial}{\partial y}(4xy^3-3y)=12xy^2-3\). Vậy \(z&#x27;&#x27;_{xy}=12xy^2-3\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 14 ========= -->
+    <section class="card" role="group" aria-labelledby="q14">
+      <div class="qmark">?</div>
+      <p class="qno" id="q14">Câu 14:</p>
+      <div class="question-box"><div class="question">Cho hàm \(z=x^4-8x^2+y^2+5\). Khẳng định nào đúng?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices14">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z\) chỉ có hai điểm dừng \(I(0;0)\) và \(K(2;0)\).</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(z\) đạt cực tiểu tại \(J(-2;0)\) và \(K(2;0)\).</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z\) không có cực trị.</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z\) đạt cực đại tại \(I(0;0)\).</button>
+      </div>
+      <div class="status" id="status14"></div>
+
+      <div class="solution-box" id="sol14" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=4x^3-16x=4x(x^2-4)\), \(z_y=2y\). 
+
+Các điểm dừng là \((0,0)\), \((2,0)\), \((-2,0)\). 
+
+Xét đạo hàm bậc hai: \(z_{xx}=12x^2-16,\;z_{yy}=2,\;z_{xy}=0\). 
+
+Tại \((\pm2,0)\): \(\Delta=(32)(2)&gt;0\), \(z_{xx}&gt;0\) nên là các điểm cực tiểu. 
+
+Tại \((0,0)\): \(\Delta=(-16)(2)&lt;0\) nên là điểm yên ngựa.
+
+Do đó:
+\(z\) đạt cực tiểu tại \(J(-2,0)\) và \(K(2,0)\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 15 ========= -->
+    <section class="card" role="group" aria-labelledby="q15">
+      <div class="qmark">?</div>
+      <p class="qno" id="q15">Câu 15:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=\sin x+\cos y\). Khi đó \(z&#x27;_y\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices15">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_y=-\sin x\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_y=\sin y\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(z&#x27;_y=-\sin y\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;_y=\sin x\)</button>
+      </div>
+      <div class="status" id="status15"></div>
+
+      <div class="solution-box" id="sol15" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(y\) được tính bằng cách xem \(x\) là hằng số.
+
+Do đó:
+\(z&#x27;_y=\dfrac{\partial}{\partial y}(\sin x+\cos y)=-\sin y\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 16 ========= -->
+    <section class="card" role="group" aria-labelledby="q16">
+      <div class="qmark">?</div>
+      <p class="qno" id="q16">Câu 16:</p>
+      <div class="question-box"><div class="question">Một xí nghiệp sản xuất độc quyền một loại sản phẩm và có hai thị trường tiêu thụ tách biệt. Biết hàm cầu trên hai thị trường và hàm tổng chi phí là: \(Q_{D_1}=480-P_1\), \(Q_{D_2}=400-P_2\), \(TC=120+100Q+Q^2\). Nếu mức thuế phải đóng trên các thị trường lần lượt là \(10\), \(20\) đơn vị tiền tệ trên một đơn vị sản phẩm. Lợi nhuận của xí nghiệp có thể tính theo công thức nào? Biết \(Q_1,Q_2\) là lượng sản phẩm bán trên các thị trường.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices16">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(\Pi=-2Q_1^2-2Q_2^2+2Q_1Q_2+390Q_1+930Q_2-120\)</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(\Pi=-2Q_1^2-2Q_2^2-2Q_1Q_2+370Q_1+280Q_2-120\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(\Pi=-2Q_1^2-4Q_2^2-2Q_1Q_2+390Q_1+1110Q_2-20\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(\Pi=-2Q_1^2-2Q_2^2-2Q_1Q_2+380Q_1+300Q_2-120\)</button>
+      </div>
+      <div class="status" id="status16"></div>
+
+      <div class="solution-box" id="sol16" hidden>
+        <div class="question-box"><div class="question">Từ \(Q_1=480-P_1\), \(Q_2=400-P_2\) suy ra \(P_1=480-Q_1\), \(P_2=400-Q_2\). 
+
+Doanh thu là \(TR=(480-Q_1)Q_1+(400-Q_2)Q_2\).
+
+Vì \(Q=Q_1+Q_2\), nên \(TC=120+100(Q_1+Q_2)+(Q_1+Q_2)^2\).
+
+Tổng thuế là \(10Q_1+20Q_2\).
+
+Do đó: \(\Pi=TR-TC-10Q_1-20Q_2\)
+
+\(=-2Q_1^2-2Q_2^2-2Q_1Q_2+370Q_1+280Q_2-120\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 17 ========= -->
+    <section class="card" role="group" aria-labelledby="q17">
+      <div class="qmark">?</div>
+      <p class="qno" id="q17">Câu 17:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=\sin x+\cos y\). Khi đó \(z&#x27;_x\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices17">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(z&#x27;_x=\cos x\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_x=-\cos y\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_x=-\cos x\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;_x=\cos y\)</button>
+      </div>
+      <div class="status" id="status17"></div>
+
+      <div class="solution-box" id="sol17" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(x\) được tính bằng cách xem \(y\) là hằng số.
+
+Do đó:
+\(z&#x27;_x=\dfrac{\partial}{\partial x}(\sin x+\cos y)=\cos x\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 18 ========= -->
+    <section class="card" role="group" aria-labelledby="q18">
+      <div class="qmark">?</div>
+      <p class="qno" id="q18">Câu 18:</p>
+      <div class="question-box"><div class="question">Trong thị trường cạnh tranh hoàn hảo, một xí nghiệp sản xuất hai loại sản phẩm với giá bán trên thị trường lần lượt là \(P_1=14\), \(P_2=16\) đơn vị tiền tệ trên một đơn vị sản phẩm. Biết trong quá trình sản xuất xí nghiệp bỏ ra chi phí theo hàm \(TC=Q_1^2+Q_1Q_2+Q_2^2\). Lợi nhuận của xí nghiệp được tính theo công thức nào?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices18">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(\Pi=Q_1^2+Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(\Pi=-Q_1^2+Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(\Pi=-Q_1^2-Q_2^2-Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(\Pi=-Q_1^2-Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+      </div>
+      <div class="status" id="status18"></div>
+
+      <div class="solution-box" id="sol18" hidden>
+        <div class="question-box"><div class="question">Doanh thu là \(TR=14Q_1+16Q_2\). 
+
+Lợi nhuận bằng doanh thu trừ chi phí: 
+
+\(\Pi=TR-TC=(14Q_1+16Q_2)-(Q_1^2+Q_1Q_2+Q_2^2)\)
+
+\(=-Q_1^2-Q_2^2-Q_1Q_2+14Q_1+16Q_2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 19 ========= -->
+    <section class="card" role="group" aria-labelledby="q19">
+      <div class="qmark">?</div>
+      <p class="qno" id="q19">Câu 19:</p>
+      <div class="question-box"><div class="question">Trong thị trường cạnh tranh hoàn hảo, một xí nghiệp sản xuất hai loại sản phẩm với giá bán trên thị trường lần lượt là \(P_1=15\), \(P_2=18\) đơn vị tiền tệ trên một đơn vị sản phẩm. Biết trong quá trình sản xuất, xí nghiệp bỏ ra chi phí tuân theo hàm \(TC=Q_1^2+Q_1Q_2+Q_2^2+6Q_1+9Q_2\). Lợi nhuận của xí nghiệp được tính theo công thức nào?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices19">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(\Pi=Q_1^2+Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(\Pi=-Q_1^2-Q_2^2+Q_1Q_2+15Q_1+18Q_2\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(\Pi=-Q_1^2-Q_2^2-Q_1Q_2+15Q_1+18Q_2\)</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(\Pi=-Q_1^2-Q_2^2-Q_1Q_2+9Q_1+9Q_2\)</button>
+      </div>
+      <div class="status" id="status19"></div>
+
+      <div class="solution-box" id="sol19" hidden>
+        <div class="question-box"><div class="question">Doanh thu là \(TR=15Q_1+18Q_2\). 
+
+Lợi nhuận 
+
+\(\Pi=TR-TC=(15Q_1+18Q_2)-(Q_1^2+Q_1Q_2+Q_2^2+6Q_1+9Q_2)=-Q_1^2-Q_2^2-Q_1Q_2+9Q_1+9Q_2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 20 ========= -->
+    <section class="card" role="group" aria-labelledby="q20">
+      <div class="qmark">?</div>
+      <p class="qno" id="q20">Câu 20:</p>
+      <div class="question-box"><div class="question">Trong thị trường cạnh tranh hoàn hảo, một xí nghiệp sản xuất hai loại sản phẩm với giá bán trên thị trường lần lượt là \(P_1=14\), \(P_2=16\) đơn vị tiền tệ trên một đơn vị sản phẩm. Biết trong quá trình sản xuất xí nghiệp bỏ ra chi phí theo hàm \(TC=Q_1^2+Q_1Q_2+Q_2^2\). Doanh thu của xí nghiệp được tính theo công thức nào?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices20">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(TR=-Q_1^2+Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(TR=Q_1^2+Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(TR=14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(TR=-Q_1^2-Q_2^2-Q_1Q_2+14Q_1+16Q_2\)</button>
+      </div>
+      <div class="status" id="status20"></div>
+
+      <div class="solution-box" id="sol20" hidden>
+        <div class="question-box"><div class="question">Trong thị trường cạnh tranh hoàn hảo, doanh thu bằng giá bán nhân sản lượng:
+
+\(TR=P_1Q_1+P_2Q_2=14Q_1+16Q_2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 21 ========= -->
+    <section class="card" role="group" aria-labelledby="q21">
+      <div class="qmark">?</div>
+      <p class="qno" id="q21">Câu 21:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=f(x,y)=xe^y\). Chọn đáp án đúng.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices21">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z^{(5)}_{y^4x}=x\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z^{(5)}_{y^4x}=0\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(z^{(5)}_{y^4x}=e^y\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z^{(5)}_{y^4x}=1\)</button>
+      </div>
+      <div class="status" id="status21"></div>
+
+      <div class="solution-box" id="sol21" hidden>
+        <div class="question-box"><div class="question">Ta có \(z=xe^y\).
+
+Lấyđạo hàm riêng bốn lần theo \(y\) được \(z_{y^4}=xe^y\). Tiếp tục lấy đạo hàm theo \(x\): \(z^{(5)}_{y^4x}=\dfrac{\partial}{\partial x}(xe^y)=e^y\). Vậy \(z^{(5)}_{y^4x}=e^y\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 22 ========= -->
+    <section class="card" role="group" aria-labelledby="q22">
+      <div class="qmark">?</div>
+      <p class="qno" id="q22">Câu 22:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x^2+y^3\). Khi đó \(z&#x27;_y\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices22">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_y=2x+3y\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_y=2x+3y^2\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_y=2x\)</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(z&#x27;_y=3y^2\)</button>
+      </div>
+      <div class="status" id="status22"></div>
+
+      <div class="solution-box" id="sol22" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(y\) được tính bằng cách xem \(x\) là hằng số.
+
+Do đó:
+\(z&#x27;_y=\dfrac{\partial}{\partial y}(x^2+y^3)=3y^2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 23 ========= -->
+    <section class="card" role="group" aria-labelledby="q23">
+      <div class="qmark">?</div>
+      <p class="qno" id="q23">Câu 23:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x^2+y^3\). Khi đó \(z&#x27;&#x27;_{yy}\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices23">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(z&#x27;&#x27;_{yy}=6y\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;&#x27;_{yy}=12\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;&#x27;_{yy}=2+12y\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;&#x27;_{yy}=12y\)</button>
+      </div>
+      <div class="status" id="status23"></div>
+
+      <div class="solution-box" id="sol23" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_y=\dfrac{\partial}{\partial y}(x^2+y^3)=3y^2\).
+
+Lấyđạo hàm riêng theo \(y\) lần nữa: \(z&#x27;&#x27;_{yy}=\dfrac{\partial}{\partial y}(3y^2)=6y\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 24 ========= -->
+    <section class="card" role="group" aria-labelledby="q24">
+      <div class="qmark">?</div>
+      <p class="qno" id="q24">Câu 24:</p>
+      <div class="question-box"><div class="question">Cho hàm \(z=x^2-2x+y^2\). Khẳng định nào đúng?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices24">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z\) không có cực trị.</button>
+        <button class="choice" data-label="B" data-correct="true"><span class="bullet">b</span>\(z\) đạt cực tiểu tại \(M(1;0)\).</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z\) đạt cực đại tại \(M(1;0)\).</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z\) có một cực đại, một cực tiểu.</button>
+      </div>
+      <div class="status" id="status24"></div>
+
+      <div class="solution-box" id="sol24" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=2x-2,\;z_y=2y\).
+
+Giải hệ\(z_x=z_y=0\) được điểm dừng \(M(1,0)\).
+
+Hơn nữa\(z_{xx}=2,\;z_{yy}=2,\;z_{xy}=0\) nên \(\Delta=z_{xx}z_{yy}-z_{xy}^2=4&gt;0\) và \(z_{xx}&gt;0\).
+
+Do đó:
+\(M(1,0)\) là điểm cực tiểu của hàm số.</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 25 ========= -->
+    <section class="card" role="group" aria-labelledby="q25">
+      <div class="qmark">?</div>
+      <p class="qno" id="q25">Câu 25:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x^2+y^3\). Khi đó \(z&#x27;&#x27;_{yx}\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices25">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(z&#x27;&#x27;_{yx}=0\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;&#x27;_{yx}=3\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;&#x27;_{yx}=6\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;&#x27;_{yx}=2\)</button>
+      </div>
+      <div class="status" id="status25"></div>
+
+      <div class="solution-box" id="sol25" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_y=\dfrac{\partial}{\partial y}(x^2+y^3)=3y^2\).
+
+Lấyđạo hàm riêng của \(z_y\) theo \(x\): \(z&#x27;&#x27;_{yx}=\dfrac{\partial}{\partial x}(3y^2)=0\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 26 ========= -->
+    <section class="card" role="group" aria-labelledby="q26">
+      <div class="qmark">?</div>
+      <p class="qno" id="q26">Câu 26:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x^2+y^3\). Khi đó \(z&#x27;_x\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices26">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_x=2x+3y\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_x=2x+3y^2\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(z&#x27;_x=2x\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;_x=3y\)</button>
+      </div>
+      <div class="status" id="status26"></div>
+
+      <div class="solution-box" id="sol26" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(x\) được tính bằng cách xem \(y\) là hằng số.
+
+Do đó:
+\(z&#x27;_x=\dfrac{\partial}{\partial x}(x^2+y^3)=2x\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 27 ========= -->
+    <section class="card" role="group" aria-labelledby="q27">
+      <div class="qmark">?</div>
+      <p class="qno" id="q27">Câu 27:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=2x^2y^3+y^4-3xy+1\). Chọn đáp án đúng.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices27">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_x=4x+3\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_x=4x-3\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_x=6x^2y^2+4y^3-3x\)</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(z&#x27;_x=4xy^3-3y\)</button>
+      </div>
+      <div class="status" id="status27"></div>
+
+      <div class="solution-box" id="sol27" hidden>
+        <div class="question-box"><div class="question">Ta có \(z=2x^2y^3+y^4-3xy+1\).
+
+Lấyđạo hàm riêng theo \(x\): \(z_x=\dfrac{\partial}{\partial x}(2x^2y^3)+\dfrac{\partial}{\partial x}(y^4)-\dfrac{\partial}{\partial x}(3xy)+\dfrac{\partial}{\partial x}(1)=4xy^3-3y\). Vậy \(z&#x27;_x=4xy^3-3y\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 28 ========= -->
+    <section class="card" role="group" aria-labelledby="q28">
+      <div class="qmark">?</div>
+      <p class="qno" id="q28">Câu 28:</p>
+      <div class="question-box"><div class="question">Cho hàm \(z=x^2-2xy+1\). Khẳng định nào đúng?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices28">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z\) đạt cực đại tại \(I(0;0)\).</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z\) có một cực đại, một cực tiểu.</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z\) đạt cực tiểu tại \(I(0;0)\).</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(z\) chỉ có một điểm dừng \(I(0;0)\).</button>
+      </div>
+      <div class="status" id="status28"></div>
+
+      <div class="solution-box" id="sol28" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=2x-2y,\;z_y=-2x\).
+
+Giải hệ\(z_x=z_y=0\) được điểm dừng duy nhất \(I(0,0)\).
+
+Hơn nữa\(z_{xx}=2,\;z_{yy}=0,\;z_{xy}=-2\) nên \(\Delta=z_{xx}z_{yy}-z_{xy}^2=2\cdot0-(-2)^2=-4&lt;0\).
+
+Vì\(\Delta&lt;0\), \(I(0,0)\) là điểm yên ngựa, không phải cực trị.
+
+Do đó: khẳng định đúng là \(z\) chỉ có một điểm dừng \(I(0,0)\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 29 ========= -->
+    <section class="card" role="group" aria-labelledby="q29">
+      <div class="qmark">?</div>
+      <p class="qno" id="q29">Câu 29:</p>
+      <div class="question-box"><div class="question">Cho hàm hai biến \(z=e^{x+2y}\). Chọn kết quả đúng.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices29">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_y=e^{x+2y}\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_y=2e^{2y}\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(z&#x27;_y=2e^{x+2y}\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z&#x27;_y=e^{x+y}\)</button>
+      </div>
+      <div class="status" id="status29"></div>
+
+      <div class="solution-box" id="sol29" hidden>
+        <div class="question-box"><div class="question">Ta có \(z=e^{x+2y}\).
+
+Lấyđạo hàm riêng theo \(y\): \(z_y=e^{x+2y}\cdot\dfrac{\partial(x+2y)}{\partial y}=2e^{x+2y}\). Vậy \(z&#x27;_y=2e^{x+2y}\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 30 ========= -->
+    <section class="card" role="group" aria-labelledby="q30">
+      <div class="qmark">?</div>
+      <p class="qno" id="q30">Câu 30:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=f(x,y)=xe^y\). Chọn đáp án đúng.</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices30">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(z^{(4)}_{y^4}=xe^y\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z^{(4)}_{y^4}=0\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z^{(4)}_{y^4}=1\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(z^{(4)}_{y^4}=-xe^y\)</button>
+      </div>
+      <div class="status" id="status30"></div>
+
+      <div class="solution-box" id="sol30" hidden>
+        <div class="question-box"><div class="question">Ta có \(z=xe^y\).
+
+Lấyđạo hàm riêng theo \(y\): \(z_y=xe^y\). Do đạo hàm của \(e^y\) luôn là \(e^y\), nên mọi đạo hàm riêng bậc cao theo \(y\) đều không đổi.
+
+Vìvậy \(z^{(4)}_{y^4}=xe^y\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 31 ========= -->
+    <section class="card" role="group" aria-labelledby="q31">
+      <div class="qmark">?</div>
+      <p class="qno" id="q31">Câu 31:</p>
+      <div class="question-box"><div class="question">Cho hàm số \(z=x\cdot y\). Khi đó \(z&#x27;_x\) là</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {1}</b> &nbsp;•&nbsp; Cấp độ: <b>1</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices31">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(z&#x27;_x=x\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(z&#x27;_x=-x\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(z&#x27;_x=-y\)</button>
+        <button class="choice" data-label="D" data-correct="true"><span class="bullet">d</span>\(z&#x27;_x=y\)</button>
+      </div>
+      <div class="status" id="status31"></div>
+
+      <div class="solution-box" id="sol31" hidden>
+        <div class="question-box"><div class="question">Đạo hàm riêng theo \(x\) được tính bằng cách xem \(y\) là hằng số.
+
+Do đó:
+\(z&#x27;_x=\dfrac{\partial}{\partial x}(xy)=y\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 32 ========= -->
+    <section class="card" role="group" aria-labelledby="q32">
+      <div class="qmark">?</div>
+      <p class="qno" id="q32">Câu 32:</p>
+      <div class="question-box"><div class="question">Trong thị trường cạnh tranh hoàn hảo, một xí nghiệp sản xuất hai loại sản phẩm với giá bán trên thị trường lần lượt là \(P_1=20\), \(P_2=16\) đơn vị tiền tệ trên một đơn vị sản phẩm. Biết trong quá trình sản xuất xí nghiệp bỏ ra chi phí theo hàm \(TC=Q_1^2+Q_1Q_2+Q_2^2+7Q_1+8Q_2+2\), và mức thuế phải đóng cho các sản phẩm lần lượt là \(3\), \(2\) đơn vị tiền tệ trên một đơn vị sản phẩm. Lợi nhuận của xí nghiệp được tính theo công thức nào?</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {3}</b> &nbsp;•&nbsp; Cấp độ: <b>3</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices32">
+        <button class="choice" data-label="A" data-correct="false"><span class="bullet">a</span>\(\Pi=-Q_1^2-Q_2^2+Q_1Q_2+14Q_1+16Q_2\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(\Pi=-Q_1^2-Q_2^2+Q_1Q_2+10Q_1+6Q_2-2\)</button>
+        <button class="choice" data-label="C" data-correct="true"><span class="bullet">c</span>\(\Pi=-Q_1^2-Q_2^2-Q_1Q_2+10Q_1+6Q_2-2\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(\Pi=Q_1^2+Q_2^2+Q_1Q_2+10Q_1+6Q_2-2\)</button>
+      </div>
+      <div class="status" id="status32"></div>
+
+      <div class="solution-box" id="sol32" hidden>
+        <div class="question-box"><div class="question">Doanh thu \(TR=20Q_1+16Q_2\), tổng thuế \(T=3Q_1+2Q_2\).
+
+Do đó:
+\(\Pi=TR-TC-T=(20Q_1+16Q_2)-(Q_1^2+Q_1Q_2+Q_2^2+7Q_1+8Q_2+2)-(3Q_1+2Q_2)\)
+
+\(=-Q_1^2-Q_2^2-Q_1Q_2+10Q_1+6Q_2-2\).</div></div>
+      </div>
+
+    </section>
+
+    <!-- ========= CÂU 33 ========= -->
+    <section class="card" role="group" aria-labelledby="q33">
+      <div class="qmark">?</div>
+      <p class="qno" id="q33">Câu 33:</p>
+      <div class="question-box"><div class="question">Tìm vi phân cấp một của hàm số \(z=x^3-2x^2y+xy\).</div></div>
+
+      <div class="meta">Chuyên đề: <b>Hàm hai biến {2}</b> &nbsp;•&nbsp; Cấp độ: <b>2</b> &nbsp;•&nbsp; Điểm: <b>1</b></div>
+      <div class="choices" id="choices33">
+        <button class="choice" data-label="A" data-correct="true"><span class="bullet">a</span>\(dz=(3x^2-4xy+y)\,dx+(-2x^2+x)\,dy\)</button>
+        <button class="choice" data-label="B" data-correct="false"><span class="bullet">b</span>\(dz=(3x^2-4y+x)\,dx+(-2x^2+x)\,dy\)</button>
+        <button class="choice" data-label="C" data-correct="false"><span class="bullet">c</span>\(dz=(3x^2-4x+y)\,dx+(-2x^2+x)\,dy\)</button>
+        <button class="choice" data-label="D" data-correct="false"><span class="bullet">d</span>\(dz=(3x^2-4xy+y)\,dx+(2x^2+x)\,dy\)</button>
+      </div>
+      <div class="status" id="status33"></div>
+
+      <div class="solution-box" id="sol33" hidden>
+        <div class="question-box"><div class="question">Ta có \(z_x=3x^2-4xy+y\), \(z_y=-2x^2+x\).
+
+Do đó:
+vi phân cấp một là \(dz=z_x\,dx+z_y\,dy=(3x^2-4xy+y)\,dx+(-2x^2+x)\,dy\).</div></div>
+      </div>
+
+    </section>
+
+
+  <!-- ========= CSS nhỏ cho khoảng cách (dùng chung, không đụng màu sắc theme) ========= -->
+  <style>
+    .solution-box { margin-top: 8px; }
+    .solution-toggle { margin-top: 6px; }
+  </style>
+
+  <!-- ========= JS hành vi: chọn đáp án + nút Hiện/Ẩn lời giải ========= -->
+  <script>
+  (function(){
+    function ensureToggleButton(card, statusEl){
+      // Nếu đã có nút => trả về luôn
+      let btn = card.querySelector('.solution-toggle');
+      if (btn) return btn;
+
+      // Tạo nút toggle ẩn mặc định; chỉ hiển thị sau khi người dùng chọn đáp án
+      btn = document.createElement('button');
+      btn.type = 'button';
+      // Thêm cả 'meta' để kế thừa style .meta của từng theme
+      btn.className = 'solution-toggle meta';
+      btn.textContent = 'Hiện lời giải';
+      btn.setAttribute('hidden', 'hidden');
+
+      // Thêm sau .status (nếu .status là con trực tiếp) hoặc chèn cuối card
+      if (statusEl && statusEl.parentNode === card) {
+        statusEl.insertAdjacentElement('afterend', btn);
+      } else {
+        card.appendChild(btn);
+      }
+
+      // Gắn sự kiện toggle
+      btn.addEventListener('click', function(){
+        const sol = card.querySelector('.solution-box');
+        if (!sol) return;
+        const isHidden = sol.hasAttribute('hidden');
+        if (isHidden) {
+          sol.removeAttribute('hidden');
+          btn.textContent = 'Ẩn lời giải';
+          try{
+            if (window.MathJax && MathJax.typesetPromise) {
+              MathJax.typesetPromise([sol]);
+            }
+          }catch(e){ console.warn(e); }
+        } else {
+          sol.setAttribute('hidden', 'hidden');
+          btn.textContent = 'Hiện lời giải';
+        }
+      });
+
+      return btn;
+    }
+
+    function initCard(card){
+      if (!card || card.dataset.inited === "1") return;
+      const group  = card.querySelector('.choices');
+      const status = card.querySelector('.status');
+      if (!group || !status) return;
+
+      const buttons = Array.from(group.querySelectorAll('.choice'));
+      if (!buttons.length) return;
+
+      // Chuẩn bị sẵn nút toggle (ẩn), sẽ hiển thị sau khi chọn đáp án
+      const toggleBtn = ensureToggleButton(card, status);
+
+      function lock(){ buttons.forEach(b => b.classList.add('disabled')); }
+
+      function reveal(clicked){
+        const correctBtn   = buttons.find(b => b.dataset.correct === 'true');
+        const correctLabel = correctBtn?.dataset.label || '?';
+
+        buttons.forEach(b=>{
+          (b.dataset.correct === 'true') ? b.classList.add('correct')
+                                         : b.classList.add('wrong');
+        });
+
+        const ans = clicked.dataset.label;
+        status.innerHTML = (clicked.dataset.correct === 'true')
+          ? `✅ Đáp án ${ans} là Chính xác! <small>Bạn đã chọn đáp án đúng. Điểm: 1.</small>`
+          : `❌ Đáp án ${ans} là Chưa đúng. <small>Đáp án đúng là <b>${correctLabel}</b>. Điểm: 0</small>`;
+
+        // Hiện nút toggle lời giải (nếu card có solution-box)
+        const sol = card.querySelector('.solution-box');
+        if (sol && toggleBtn) {
+          toggleBtn.removeAttribute('hidden'); // cho phép bấm hiện/ẩn
+          // Mặc định: vẫn ẩn lời giải cho tới khi người dùng bấm
+          sol.setAttribute('hidden', 'hidden');
+          toggleBtn.textContent = 'Hiện lời giải';
+        }
+
+        // Render lại MathJax nếu status có LaTeX
+        if (window.MathJax && MathJax.typesetPromise) {
+          MathJax.typesetPromise([status]).catch(function(err){
+            console.error("MathJax re-typeset error:", err);
+          });
+        }
+      }
+
+      group.addEventListener('click', function(e){
+        const btn = e.target.closest('.choice');
+        if (!btn || !group.contains(btn)) return;
+        if (buttons.some(b => b.classList.contains('correct') || b.classList.contains('wrong'))) return;
+        reveal(btn);
+        lock();
+      });
+
+      card.dataset.inited = "1";
+    }
+
+    function boot(){
+      document.querySelectorAll('.card[role="group"]').forEach(initCard);
+    }
+
+    if (document.readyState !== 'loading') boot();
+    else window.addEventListener('DOMContentLoaded', boot);
+
+    // Quan sát khi nội dung được chèn muộn
+    const mo = new MutationObserver((muts)=>{
+      muts.forEach(m=>{
+        m.addedNodes && m.addedNodes.forEach(node=>{
+          if (!(node instanceof Element)) return;
+          if (node.matches && node.matches('.card[role="group"]')) initCard(node);
+          node.querySelectorAll && node.querySelectorAll('.card[role="group"]').forEach(initCard);
+        });
+      });
+    });
+    try { mo.observe(document.documentElement || document.body, {childList:true, subtree:true}); }
+    catch(e) { console.warn('MutationObserver not started:', e); }
+  })();
+  </script>
+
+  <!-- nút lên đầu trang -->
+  <a href="#" class="to-top" aria-label="Lên đầu trang">↑</a>
+
+  </div>
+</body>
+</html>
